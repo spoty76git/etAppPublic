@@ -1,0 +1,142 @@
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+
+    /* Fix graph containers */
+    .graph-container {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    /* Ensure graphs have minimum width */
+    .js-plotly-plot {
+        min-width: 100% !important;
+        width: 100% !important;
+    }
+
+    /* Fix graph text and labels */
+    .gtitle {
+        font-size: 14px !important;
+    }
+
+    .xtick text,
+    .ytick text {
+        font-size: 10px !important;
+    }
+
+    /* Fix legend text */
+    .legendtext {
+        font-size: 11px !important;
+    }
+
+    /* Make cards stack on mobile */
+    .row>.col-6 {
+        flex: 0 0 100%;
+        max-width: 100%;
+        margin-bottom: 1rem;
+    }
+
+    /* Fix date pickers */
+    .DateInput_input {
+        font-size: 14px !important;
+        padding: 5px !important;
+    }
+
+    /* Fix dropdowns */
+    .Select-control {
+        font-size: 14px !important;
+    }
+
+    /* Fix buttons */
+    .btn {
+        font-size: 14px !important;
+        padding: 0.375rem 0.75rem !important;
+    }
+
+    /* Fix input groups */
+    .input-group-sm .form-control {
+        font-size: 14px !important;
+    }
+
+    /* Fix accordion headers */
+    .accordion-button {
+        font-size: 16px !important;
+        padding: 0.75rem !important;
+    }
+
+    /* Fix card titles */
+    .card-title {
+        font-size: 16px !important;
+    }
+
+    /* Fix metric displays */
+    h3 {
+        font-size: 1.5rem !important;
+    }
+
+    /* Fix sankey diagram height */
+    #sankey-diagram {
+        height: auto !important;
+        min-height: 300px !important;
+    }
+
+    /* Fix filter container */
+    #filter-container {
+        margin-bottom: 1rem;
+    }
+
+    /* Fix navbar brand */
+    .navbar-brand {
+        font-size: 1.2rem !important;
+    }
+
+    /* Fix table responsiveness */
+    .table-responsive {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    /* Fix modal dialogs */
+    .modal-dialog {
+        margin: 0.5rem;
+    }
+
+    /* Fix net worth cards */
+    .compact-metric-card .card-body {
+        padding: 0.5rem !important;
+    }
+
+    /* Fix date range picker row */
+    .g-0 {
+        flex-wrap: wrap;
+    }
+
+    /* Stack filter options vertically on mobile */
+    .dash-radio-group {
+        display: flex;
+        flex-direction: column;
+    }
+
+    /* Fix transaction cards */
+    .card-header,
+    .card-body,
+    .card-footer {
+        padding: 0.5rem !important;
+    }
+
+    /* Fix small text */
+    .small {
+        font-size: 0.8rem !important;
+    }
+}
+
+/* Tablet adjustments */
+@media (min-width: 769px) and (max-width: 1024px) {
+    .gtitle {
+        font-size: 16px !important;
+    }
+
+    .xtick text,
+    .ytick text {
+        font-size: 12px !important;
+    }
+}
