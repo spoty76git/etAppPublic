@@ -5,6 +5,7 @@
         'tm-merchant',
         'tm-amount',
         'tm-note',
+        'tm-tag-input',
         'tm-date-left-arrow',
         'tm-date-right-arrow'
     ];
@@ -135,12 +136,22 @@
 
             // Enter submits the form
             if (e.key === 'Enter') {
+                
+                e.preventDefault();
+
+                // Avoid submitting if selecting category
                 const categoryDropdown = document.getElementById('tm-category');
                 const isSelectingCategory = categoryDropdown && 
                                         (active === categoryDropdown || 
                                             categoryDropdown.contains(active));
                 
-                if (!isSelectingCategory) {
+                                            
+                const tagInput = document.getElementById('tm-tag-input');
+                const isInTagInput = tagInput &&
+                    (active === tagInput ||
+                        tagInput.contains(active));
+
+                if (!isSelectingCategory && !isInTagInput) {
                     clickButton('add-transaction-btn');
                 }
             }

@@ -552,6 +552,112 @@ class ExpenseDB:
             return '{"mode": "direct", "note": "No pool metrics in direct mode"}'
 
     # --- Main Database Methods ---
+    
+    # --------------- Tags ----------------------------------
+    #Tags table and indexes creation method, use if missing
+    def create_tags_table(self):
+        
+        with self._get_cursor() as cursor:
+            cursor.execute("""
+                    CREATE TABLE IF NOT EXISTS tags (
+                        tag_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        transaction_id INTEGER NOT NULL,
+                        tag_name TEXT NOT NULL,
+                        tag_color TEXT NOT NULL,
+                        date_created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                        user_id INTEGER,
+                        FOREIGN KEY (transaction_id) REFERENCES transactions(id) ON DELETE CASCADE,
+                        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+                    )
+                """)
+
+            # index by transaction_id
+            cursor.execute("""
+                    CREATE INDEX IF NOT EXISTS idx_tags_transaction_id 
+                    ON tags(transaction_id)
+                """)
+            
+            # index by user_id
+            cursor.execute("""
+                    CREATE INDEX IF NOT EXISTS idx_tags_user_id 
+                    ON tags(user_id)
+                """)
+
+    def add_tag_to_transaction(self, transaction_id, tag_name, tag_color, user_id=None):
+
+        with self._get_cursor() as cursor:
+            cursor.execute("""
+                INSERT INTO tags (transaction_id, tag_name, tag_color, user_id)
+                VALUES (?, ?, ?, ?)
+            """, (transaction_id, tag_name, tag_color, user_id))
+
+    def fetch_unique_tags(self, user_id=None):
+
+        with self._get_cursor() as cursor:
+            query = """
+                SELECT DISTINCT tag_name, tag_color, COUNT(*) as usage_count
+                FROM tags
+                WHERE 1=1
+            """
+            params = []
+
+            if user_id is not None:
+                query += " AND user_id = ?"
+                params.append(user_id)
+
+            query += " GROUP BY tag_name, tag_color ORDER BY tag_name"
+
+            cursor.execute(query, params)
+            tags = cursor.fetchall()
+
+        return tags
+
+    def get_tags_for_transaction(self, transaction_id, user_id=None):
+
+        with self._get_cursor() as cursor:
+            if user_id is not None:
+                cursor.execute("""
+                    SELECT tag_id, tag_name, tag_color, date_created
+                    FROM tags
+                    WHERE transaction_id = ? AND user_id = ?
+                    ORDER BY date_created DESC
+                """, (transaction_id, user_id))
+            else:
+                cursor.execute("""
+                    SELECT tag_id, tag_name, tag_color, date_created
+                    FROM tags
+                    WHERE transaction_id = ?
+                    ORDER BY date_created DESC
+                """, (transaction_id,))
+            return cursor.fetchall()
+
+    def remove_tag(self, tag_id, user_id=None):
+
+        with self._get_cursor() as cursor:
+            if user_id is not None:
+                cursor.execute("DELETE FROM tags WHERE tag_id = ? AND user_id = ?", (tag_id, user_id))
+            else:
+                cursor.execute("DELETE FROM tags WHERE tag_id = ?", (tag_id,))
+
+    def get_transactions_by_tag(self, tag_name, user_id=None):
+
+        with self._get_cursor() as cursor:
+            query = """
+                SELECT DISTINCT t.*
+                FROM transactions t
+                JOIN tags tg ON t.id = tg.transaction_id
+                WHERE tg.tag_name = ?
+            """
+            params = [tag_name]
+            
+            if user_id is not None:
+                query += " AND tg.user_id = ?"
+                params.append(user_id)
+            
+            cursor.execute(query, params)
+            return cursor.fetchall()  
+
+    # ------------------------------------------------------
     def get_total_spent_by_category_filtered(
         self, start_date=None, end_date=None, user_id=None
     ):
@@ -1010,7 +1116,6 @@ class ExpenseDB:
 
             return result
 
-
     def get_all_transactions_flow(self, start_date=None, end_date=None, user_id=None):
         with self._get_cursor() as cursor:
             # --- Income query ---
@@ -1465,6 +1570,7 @@ class ExpenseDB:
         start_date=None,
         end_date=None,
         recurring_filter=None,
+        tags_filter=None,
         num_trans_limit=10,
         sort_order="default",
         user_id=None,
@@ -1507,6 +1613,18 @@ class ExpenseDB:
             if recurring_filter and "enable" in recurring_filter:
                 conditions.append("t.recurring = 1")  # Only recurring transactions
             
+            if tags_filter:
+                
+                tag_names = [tag['name'] for tag in tags_filter]
+                
+                if tag_names:
+                    
+                    tag_placeholders = ",".join(["?"] * len(tag_names))
+                    
+                    # Add condition to filter transactions that have at least one of the specified tags
+                    conditions.append(f"tg.tag_name IN ({tag_placeholders})")
+                    params.extend(tag_names)
+
             if conditions:
                 query += " AND " + " AND ".join(conditions)
             
@@ -1613,6 +1731,15 @@ def init_db(use_pool_init=True, pool_size_init=8, enable_monitoring_init=True, u
         # Start background health monitoring only for pooled mode (if needed)
         if use_pool_init and enable_monitoring_init:
             monitor_pool_health(db_initialized, interval_seconds=30)
+
+
+        # ---------------------------------------------------------------------
+        # Initialize Table creations if not exist TABLE CREATION METHODs
+        
+        # Tags - use if table missing
+        db_initialized.create_tags_table() 
+
+        # ---------------------------------------------------------------------
             
     except Exception as e:
         print(f"Error initializing database: {e}")

@@ -42,108 +42,203 @@ def data_page_layout():
             html.H2("Manage Data", className="mb-4"),
             dbc.Accordion(
                 [
-                    
                     # -- TRANSACTION ADDER --
                     dbc.AccordionItem(
                         [
-                            dbc.Form([
-                                dbc.Row([
-                                    dbc.Col(
-                                        dcc.Dropdown(
-                                            id="tm-category",
-                                            placeholder="Select category",
-                                            className="mb-3",
-                                        )
-                                    )
-                                ]),
-                                dbc.Row([
-                                    dbc.Col(
-                                        dbc.Input(
-                                            id="tm-merchant",
-                                            placeholder="Merchant",
-                                            type="text",
-                                            className="mb-3",
-                                        )
-                                    )
-                                ]),
-                                dbc.Row([
-                                    dbc.Col(
-                                        dbc.Input(
-                                            id="tm-amount",
-                                            placeholder="Amount ($)",
-                                            type="number",
-                                            className="mb-3",
-                                        )
-                                    )
-                                ]),
-                                dbc.Row([
-                                    dbc.Col(
-                                        dbc.Input(
-                                            id="tm-note",
-                                            placeholder="Note",
-                                            type="text",
-                                            className="mb-3",
-                                        )
-                                    )
-                                ]),
-                                dbc.Row([
-                                    dbc.Col(
-                                        dbc.Button(
-                                            html.I(className="fas fa-arrow-left"),
-                                            id="tm-date-decrement",
-                                            color="light",
-                                            className="p-2 border rounded",
-                                            style={"margin-right": "5px"}
-                                        ),
-                                        width="auto"
+                            dbc.Form(
+                                [
+                                    dbc.Row(
+                                        [
+                                            dbc.Col(
+                                                dcc.Dropdown(
+                                                    id="tm-category",
+                                                    placeholder="Select category",
+                                                    className="mb-3",
+                                                )
+                                            )
+                                        ]
                                     ),
-                                    dbc.Col(
-                                        dcc.DatePickerSingle(
-                                            id="tm-date",
-                                            date=datetime.today().date(),
-                                            display_format='MMM Do, YY',
-                                            style={"margin-bottom": "5px"}
-                                        ),
-                                        width="auto"
+                                    dbc.Row(
+                                        [
+                                            dbc.Col(
+                                                dbc.Input(
+                                                    id="tm-merchant",
+                                                    placeholder="Merchant",
+                                                    type="text",
+                                                    className="mb-3",
+                                                )
+                                            )
+                                        ]
                                     ),
-                                    dbc.Col(
-                                        dbc.Button(
-                                            html.I(className="fas fa-arrow-right"),
-                                            id="tm-date-increment",
-                                            color="light",
-                                            className="p-2 border rounded",
-                                            style={"margin-left": "5px"}
-                                        ),
-                                        width="auto"
-                                    )
-                                ], align="center", justify="start", className="g-0"),
-                                dbc.Row([
-                                    dbc.Col(
-                                        dbc.Checkbox(
-                                            id="tm-recurring",
-                                            label="Recurring",
-                                            value=False,
-                                            className="mb-3"
-                                        )
-                                    )
-                                ]),
-                                dbc.Row([
-                                    dbc.Col(
-                                        dbc.Button("Add Transaction", id="add-transaction-btn", color="primary", className="mt-2"),
-                                        id="button-container"
+                                    dbc.Row(
+                                        [
+                                            dbc.Col(
+                                                dbc.Input(
+                                                    id="tm-amount",
+                                                    placeholder="Amount ($)",
+                                                    type="number",
+                                                    className="mb-3",
+                                                )
+                                            )
+                                        ]
                                     ),
-                                    dcc.Interval(id="button-reset-interval", disabled=True, interval=1000, n_intervals=0)
-                                ])
-                            ])
+                                    dbc.Row(
+                                        [
+                                            dbc.Col(
+                                                dbc.Input(
+                                                    id="tm-note",
+                                                    placeholder="Note",
+                                                    type="text",
+                                                    className="mb-3",
+                                                )
+                                            )
+                                        ]
+                                    ),
+
+                                    # ------ TAGS SECTION ------
+                                    dbc.Row(
+                                        [
+                                            dbc.Col(
+                                                [
+                                                    dbc.InputGroup(
+                                                        [
+                                                            dbc.Input(
+                                                                id="tm-tag-input",
+                                                                placeholder="Add tags (Enter to add)",
+                                                                type="text",
+                                                                className="mb-2",
+                                                            ),
+                                                            dbc.InputGroupText(
+                                                                html.I(
+                                                                    className="fas fa-tag"
+                                                                ),
+                                                                style={
+                                                                    "background-color": "#f8f9fa"
+                                                                },
+                                                            ),
+                                                        ]
+                                                    ),
+                                                    # Dropdown for tag suggestions
+                                                    dbc.Collapse(
+                                                        dbc.Card(
+                                                            dbc.CardBody(
+                                                                id="tag-suggestions",
+                                                                children=[],
+                                                                style={
+                                                                    "max-height": "150px",
+                                                                    "overflow-y": "auto",
+                                                                    "padding": "5px",
+                                                                },
+                                                            ),
+                                                            style={
+                                                                "position": "absolute",
+                                                                "z-index": "1000",
+                                                                "width": "100%",
+                                                            },
+                                                        ),
+                                                        id="tag-suggestions-collapse",
+                                                        is_open=False,
+                                                    ),
+                                                    # Display selected tags
+                                                    html.Div(
+                                                        id="selected-tags-display",
+                                                        children=[],
+                                                        className="mb-3",
+                                                        style={"min-height": "30px"},
+                                                    ),
+                                                    # Store for selected tags
+                                                    dcc.Store(
+                                                        id="selected-tags-store",
+                                                        data=[],
+                                                    ),
+                                                ]
+                                            )
+                                        ]
+                                    ),
+
+                                    # ---------- DATE PICKER WITH INCREMENT/DECREMENT BUTTONS ----------
+                                    dbc.Row(
+                                        [
+                                            dbc.Col(
+                                                dbc.Button(
+                                                    html.I(
+                                                        className="fas fa-arrow-left"
+                                                    ),
+                                                    id="tm-date-decrement",
+                                                    color="light",
+                                                    className="p-2 border rounded",
+                                                    style={"margin-right": "5px"},
+                                                ),
+                                                width="auto",
+                                            ),
+                                            dbc.Col(
+                                                dcc.DatePickerSingle(
+                                                    id="tm-date",
+                                                    date=datetime.today().date(),
+                                                    display_format="MMM Do, YY",
+                                                    style={"margin-bottom": "5px"},
+                                                ),
+                                                width="auto",
+                                            ),
+                                            dbc.Col(
+                                                dbc.Button(
+                                                    html.I(
+                                                        className="fas fa-arrow-right"
+                                                    ),
+                                                    id="tm-date-increment",
+                                                    color="light",
+                                                    className="p-2 border rounded",
+                                                    style={"margin-left": "5px"},
+                                                ),
+                                                width="auto",
+                                            ),
+                                        ],
+                                        align="center",
+                                        justify="start",
+                                        className="g-0",
+                                    ),
+                                    dbc.Row(
+                                        [
+                                            dbc.Col(
+                                                dbc.Checkbox(
+                                                    id="tm-recurring",
+                                                    label="Recurring",
+                                                    value=False,
+                                                    className="mb-3",
+                                                )
+                                            )
+                                        ]
+                                    ),
+                                    dbc.Row(
+                                        [
+                                            dbc.Col(
+                                                dbc.Button(
+                                                    "Add Transaction",
+                                                    id="add-transaction-btn",
+                                                    color="primary",
+                                                    className="mt-2",
+                                                ),
+                                                id="button-container",
+                                            ),
+                                            dcc.Interval(
+                                                id="button-reset-interval",
+                                                disabled=True,
+                                                interval=1000,
+                                                n_intervals=0,
+                                            ),
+                                        ]
+                                    ),
+                                ]
+                            )
                         ],
                         title="Transaction manager",
-                        item_id="transaction_manager"
+                        item_id="transaction_manager",
                     ),
-                    
                     # -- CATEGORY MANAGER --
                     dbc.AccordionItem(
                         [
-                            dbc.Row([
+                            dbc.Row(
+                                [
                                     dbc.Col(
                                         dbc.Input(
                                             id="cm-category",
@@ -152,7 +247,6 @@ def data_page_layout():
                                             className="mb-3",
                                         )
                                     ),
-                                    
                                     dbc.Col(
                                         dbc.Input(
                                             id="cm-budget",
@@ -161,30 +255,46 @@ def data_page_layout():
                                             className="mb-3",
                                         )
                                     ),
-                                    
                                     dbc.Col(
-                                        dbc.Button("Add Category", id="add-category-btn", color="primary", className="mt-2"),
-                                        id="button-container"
+                                        dbc.Button(
+                                            "Add Category",
+                                            id="add-category-btn",
+                                            color="primary",
+                                            className="mt-2",
+                                        ),
+                                        id="button-container",
                                     ),
-                                    dcc.Interval(id="button-reset-interval-cat", disabled=True, interval=1000, n_intervals=0)
-                                ]),
-                            
-                            dbc.Row([
-                                dbc.Col(
-                                    dbc.Button("Refresh", id="refresh-categories-btn", color="primary", className="mb-3"),
-                                    width=12
-                                )
-                            ]),
-                            html.Div(id="categories-list", className="mt-3")
+                                    dcc.Interval(
+                                        id="button-reset-interval-cat",
+                                        disabled=True,
+                                        interval=1000,
+                                        n_intervals=0,
+                                    ),
+                                ]
+                            ),
+                            dbc.Row(
+                                [
+                                    dbc.Col(
+                                        dbc.Button(
+                                            "Refresh",
+                                            id="refresh-categories-btn",
+                                            color="primary",
+                                            className="mb-3",
+                                        ),
+                                        width=12,
+                                    )
+                                ]
+                            ),
+                            html.Div(id="categories-list", className="mt-3"),
                         ],
                         title="Category manager",
-                        item_id="category_manager"
+                        item_id="category_manager",
                     ),
-                    
                     # -- INCOME VIEWER
                     dbc.AccordionItem(
                         [
-                            dbc.Row([
+                            dbc.Row(
+                                [
                                     dbc.Col(
                                         dbc.Input(
                                             id="im-source",
@@ -193,7 +303,6 @@ def data_page_layout():
                                             className="mb-3",
                                         )
                                     ),
-                                    
                                     dbc.Col(
                                         dbc.Input(
                                             id="im-amount",
@@ -202,563 +311,727 @@ def data_page_layout():
                                             className="mb-3",
                                         )
                                     ),
-                                    
                                     dbc.Col(
-                                        dbc.Button("Add income", id="add-income-btn", color="primary", className="mt-2"),
-                                        id="button-container"
+                                        dbc.Button(
+                                            "Add income",
+                                            id="add-income-btn",
+                                            color="primary",
+                                            className="mt-2",
+                                        ),
+                                        id="button-container",
                                     ),
-                                    dcc.Interval(id="button-reset-interval-inc", disabled=True, interval=1000, n_intervals=0)
-                                ]),
-                            
-                            dbc.Row([
+                                    dcc.Interval(
+                                        id="button-reset-interval-inc",
+                                        disabled=True,
+                                        interval=1000,
+                                        n_intervals=0,
+                                    ),
+                                ]
+                            ),
+                            dbc.Row(
+                                [
                                     dbc.Col(
                                         dbc.Button(
                                             html.I(className="fas fa-arrow-left"),
                                             id="im-date-decrement",
                                             color="light",
                                             className="p-2 border rounded",
-                                            style={"margin-right": "5px", "margin-bottom": "40px"} 
+                                            style={
+                                                "margin-right": "5px",
+                                                "margin-bottom": "40px",
+                                            },
                                         ),
-                                        width="auto"
+                                        width="auto",
                                     ),
                                     dbc.Col(
                                         dcc.DatePickerSingle(
                                             id="im-date",
                                             date=datetime.today().date(),
-                                            display_format='MMM Do, YY',
-                                            style={"margin-bottom": "40px"}
+                                            display_format="MMM Do, YY",
+                                            style={"margin-bottom": "40px"},
                                         ),
-                                        width="auto"
+                                        width="auto",
                                     ),
                                     dbc.Col(
                                         dbc.Button(
                                             html.I(className="fas fa-arrow-right"),
                                             id="im-date-increment",
                                             color="light",
-                                            className="p-2 border rounded", 
-                                            style={"margin-left": "5px", "margin-bottom": "40px"}
+                                            className="p-2 border rounded",
+                                            style={
+                                                "margin-left": "5px",
+                                                "margin-bottom": "40px",
+                                            },
                                         ),
-                                        width="auto"
+                                        width="auto",
+                                    ),
+                                ],
+                                align="center",
+                                justify="start",
+                                className="g-0",
+                            ),
+                            dbc.Row(
+                                [
+                                    dbc.Col(
+                                        dbc.Input(
+                                            id="iv-search",
+                                            placeholder="Search income...",
+                                            type="text",
+                                            className="mb-3",
+                                        ),
+                                        width=4,
+                                    ),
+                                    dbc.Col(
+                                        dbc.InputGroup(
+                                            [
+                                                dbc.InputGroupText("Limit:"),
+                                                dbc.Input(
+                                                    id="iv-num-income-limit",
+                                                    type="number",
+                                                    value=40,
+                                                    min=1,
+                                                    step=1,
+                                                    style={"width": "100px"},  # Fixed
+                                                ),
+                                            ],
+                                            className="mb-3",
+                                            style={"maxWidth": "200px"},  # Constraint
+                                        ),
+                                        width=4,
+                                    ),
+                                ]
+                            ),
+                            dbc.Row(
+                                [
+                                    dbc.Col(
+                                        dcc.DatePickerSingle(
+                                            id="iv-start-date",
+                                            placeholder="Start Date",
+                                            className="mb-3",
+                                            display_format="MMM Do, YY",
+                                            style={"width": "100%"},
+                                        ),
+                                        width="auto",
+                                    ),
+                                    dbc.Col(
+                                        dcc.DatePickerSingle(
+                                            id="iv-end-date",
+                                            placeholder="End Date",
+                                            className="mb-3",
+                                            display_format="MMM Do, YY",
+                                            style={"width": "100%"},
+                                        ),
+                                        width="auto",
+                                    ),
+                                    dbc.Col(
+                                        dbc.Button(
+                                            html.I(className="fas fa-times-circle"),
+                                            id="iv-reset-date-filters",
+                                            color="danger",
+                                            outline=True,
+                                            className="mb-3",
+                                            style={"margin-left": "10px"},
+                                        ),
+                                        width="auto",
+                                        className="d-flex align-items-center",
+                                    ),
+                                    dbc.Col(
+                                        dbc.Select(
+                                            id="iv-sort-order",
+                                            options=[
+                                                {
+                                                    "label": "Default (order by added)",
+                                                    "value": "default",
+                                                },
+                                                {
+                                                    "label": "Oldest First",
+                                                    "value": "asc",
+                                                },
+                                                {
+                                                    "label": "Newest First",
+                                                    "value": "desc",
+                                                },
+                                            ],
+                                            value="default",  # Default sorting
+                                            className="dash-select-group",
+                                            style={
+                                                "width": "200px",
+                                                "margin-left": "100px",
+                                            },
+                                        ),
+                                        width="auto",
+                                        className="d-flex align-items-center",
+                                    ),
+                                ],
+                                justify="start",
+                                className="g-2",
+                            ),
+                            dbc.Row(
+                                [
+                                    dbc.Col(
+                                        dbc.Button(
+                                            "Refresh",
+                                            id="refresh-income-btn",
+                                            color="primary",
+                                            className="mb-3",
+                                        ),
+                                        width=12,
                                     )
-                                ], align="center", justify="start", className="g-0"),
-
-                            dbc.Row([
-                                dbc.Col(
-                                    dbc.Input(
-                                        id="iv-search",
-                                        placeholder="Search income...",
-                                        type="text",
-                                        className="mb-3",
-                                    ),
-                                    width=4
-                                ),
-                                dbc.Col(
-                                    dbc.InputGroup(
-                                        [
-                                            dbc.InputGroupText("Limit:"),
-                                            dbc.Input(
-                                                id="iv-num-income-limit",
-                                                type="number",
-                                                value=40,
-                                                min = 1,
-                                                step = 1,
-                                                style={"width": "100px"}  # Fixed
-                                            ),
-                                        ],
-                                        className="mb-3",
-                                        style={"maxWidth": "200px"}  # Constraint
-                                    ),
-                                    width=4
-                                )
-                            ]),
-                            
-                            dbc.Row([
-                                dbc.Col(
-                                    dcc.DatePickerSingle(
-                                        id="iv-start-date",
-                                        placeholder="Start Date",
-                                        className="mb-3",
-                                        display_format='MMM Do, YY',
-                                        style={"width": "100%"}
-                                    ),
-                                    width="auto"
-                                ),
-                                dbc.Col(
-                                    dcc.DatePickerSingle(
-                                        id="iv-end-date",
-                                        placeholder="End Date",
-                                        className="mb-3",
-                                        display_format='MMM Do, YY',
-                                        style={"width": "100%"}
-                                    ),
-                                    width="auto"
-                                ),
-                                dbc.Col(
-                                    dbc.Button(
-                                        html.I(className="fas fa-times-circle"), 
-                                        id="iv-reset-date-filters",
-                                        color="danger",  
-                                        outline=True,  
-                                        className="mb-3",
-                                        style={"margin-left": "10px"}
-                                    ),
-                                    width="auto",
-                                    className="d-flex align-items-center" 
-                                ),
-                                dbc.Col(
-                                    dbc.Select(
-                                        id="iv-sort-order",
-                                        options=[
-                                            {"label": "Default (order by added)", "value": "default"},
-                                            {"label": "Oldest First", "value": "asc"},
-                                            {"label": "Newest First", "value": "desc"},
-                                        ],
-                                        value="default",  # Default sorting
-                                        className="dash-select-group",
-                                        style={"width": "200px", "margin-left": "100px"}
-                                    ),
-                                    width="auto",
-                                    className="d-flex align-items-center"
-                                )
-                            ], justify="start", className="g-2"), 
-                            
-                            dbc.Row([
-                                dbc.Col(
-                                    dbc.Button("Refresh", id="refresh-income-btn", color="primary", className="mb-3"),
-                                    width=12
-                                )
-                            ]),
-                            html.Div(id="iv-income-list", className="mt-3")
+                                ]
+                            ),
+                            html.Div(id="iv-income-list", className="mt-3"),
                         ],
                         title="Income viewer",
-                        item_id="income_viewer"
+                        item_id="income_viewer",
                     ),
-                    
                     # -- TRANSACTION VIEWER
                     dbc.AccordionItem(
                         [
-                            dbc.Row([
-                                dbc.Col(
-                                    dbc.Input(
-                                        id="tv-search",
-                                        placeholder="Search transactions...",
-                                        type="text",
-                                        className="mb-3",
+                            dbc.Row(
+                                [
+                                    dbc.Col(
+                                        dbc.Input(
+                                            id="tv-search",
+                                            placeholder="Search transactions...",
+                                            type="text",
+                                            className="mb-3",
+                                        ),
+                                        width=4,
                                     ),
-                                    width=4
-                                ),
-                                dbc.Col(
-                                    dcc.Dropdown(
-                                        id="tv-category-filter",
-                                        placeholder="Filter by category",
-                                        className="mb-3",
-                                        multi=True
+                                    dbc.Col(
+                                        dcc.Dropdown(
+                                            id="tv-category-filter",
+                                            placeholder="Filter by category",
+                                            className="mb-3",
+                                            multi=True,
+                                        ),
+                                        width=4,
                                     ),
-                                    width=4
-                                ),
-                                dbc.Col(
-                                    dbc.InputGroup(
-                                        [
-                                            dbc.InputGroupText("Limit:"),
-                                            dbc.Input(
-                                                id="num-trans-limit",
-                                                type="number",
-                                                value=40,
-                                                min = 1,
-                                                step = 1,
-                                                style={"width": "100px"}  # Fixed
-                                            ),
-                                        ],
-                                        className="mb-3",
-                                        style={"maxWidth": "200px"}  # Constraint
+                                    dbc.Col(
+                                        dbc.InputGroup(
+                                            [
+                                                dbc.InputGroupText("Limit:"),
+                                                dbc.Input(
+                                                    id="num-trans-limit",
+                                                    type="number",
+                                                    value=40,
+                                                    min=1,
+                                                    step=1,
+                                                    style={"width": "100px"},  # Fixed
+                                                ),
+                                            ],
+                                            className="mb-3",
+                                            style={"maxWidth": "200px"},  # Constraint
+                                        ),
+                                        width=4,
                                     ),
-                                    width=4
-                                )
-                            ]),
-                            
-                            dbc.Row([
-                                dbc.Col(
-                                    dcc.DatePickerSingle(
-                                        id="tv-start-date",
-                                        placeholder="Start Date",
-                                        className="mb-3",
-                                        display_format='MMM Do, YY',
-                                        style={"width": "100%"}
+                                ]
+                            ),
+                            dbc.Row(
+                                [
+                                    dbc.Col(
+                                        dcc.DatePickerSingle(
+                                            id="tv-start-date",
+                                            placeholder="Start Date",
+                                            className="mb-3",
+                                            display_format="MMM Do, YY",
+                                            style={"width": "100%"},
+                                        ),
+                                        width="auto",
                                     ),
-                                    width="auto"
-                                ),
-                                dbc.Col(
-                                    dcc.DatePickerSingle(
-                                        id="tv-end-date",
-                                        placeholder="End Date",
-                                        className="mb-3",
-                                        display_format='MMM Do, YY',
-                                        style={"width": "100%"}
+                                    dbc.Col(
+                                        dcc.DatePickerSingle(
+                                            id="tv-end-date",
+                                            placeholder="End Date",
+                                            className="mb-3",
+                                            display_format="MMM Do, YY",
+                                            style={"width": "100%"},
+                                        ),
+                                        width="auto",
                                     ),
-                                    width="auto"
-                                ),
-                                dbc.Col(
-                                    dbc.Button(
-                                        html.I(className="fas fa-times-circle"), 
-                                        id="tv-reset-date-filters",
-                                        color="danger",  
-                                        outline=True,  
-                                        className="mb-3",
-                                        style={"margin-left": "10px"}
+                                    dbc.Col(
+                                        dbc.Button(
+                                            html.I(className="fas fa-times-circle"),
+                                            id="tv-reset-date-filters",
+                                            color="danger",
+                                            outline=True,
+                                            className="mb-3",
+                                            style={"margin-left": "10px"},
+                                        ),
+                                        width="auto",
+                                        className="d-flex align-items-center",
                                     ),
-                                    width="auto",
-                                    className="d-flex align-items-center" 
-                                ),
-                                dbc.Col(
-                                    dbc.Checklist(
-                                        id="tv-recurring-filter",
-                                        options=[{"label": "Subscriptions only", "value": "enable"}],
-                                        value=[],  # Disabled by default
-                                        switch=True,
-                                        className="dash-checklist-group",
-                                        style={"margin-left": "100px"}
+                                    dbc.Col(
+                                        dbc.Checklist(
+                                            id="tv-recurring-filter",
+                                            options=[
+                                                {
+                                                    "label": "Subscriptions only",
+                                                    "value": "enable",
+                                                }
+                                            ],
+                                            value=[],  # Disabled by default
+                                            switch=True,
+                                            className="dash-checklist-group",
+                                            style={"margin-left": "100px"},
+                                        ),
+                                        width="auto",
+                                        className="d-flex align-items-center",
                                     ),
-                                    width="auto",
-                                    className="d-flex align-items-center"
-                                ),
-                                dbc.Col(
-                                    dbc.Select(
-                                        id="tv-sort-order",
-                                        options=[
-                                            {"label": "Default (order by added)", "value": "default"},
-                                            {"label": "Oldest First", "value": "asc"},
-                                            {"label": "Newest First", "value": "desc"},
-                                        ],
-                                        value="default",  # Default sorting
-                                        className="dash-select-group",
-                                        style={"width": "200px", "margin-left": "100px"}
+                                    dbc.Col(
+                                        dbc.Select(
+                                            id="tv-sort-order",
+                                            options=[
+                                                {
+                                                    "label": "Default (order by added)",
+                                                    "value": "default",
+                                                },
+                                                {
+                                                    "label": "Oldest First",
+                                                    "value": "asc",
+                                                },
+                                                {
+                                                    "label": "Newest First",
+                                                    "value": "desc",
+                                                },
+                                            ],
+                                            value="default",  # Default sorting
+                                            className="dash-select-group",
+                                            style={
+                                                "width": "200px",
+                                                "margin-left": "100px",
+                                            },
+                                        ),
+                                        width="auto",
+                                        className="d-flex align-items-center",
                                     ),
-                                    width="auto",
-                                    className="d-flex align-items-center"
-                                )
-                            ], justify="start", className="g-2"), 
-                            
-                            dbc.Row([
-                                dbc.Col(
-                                    dbc.Button("Refresh", id="refresh-transactions-btn", color="primary", className="mb-3"),
-                                    width=12
-                                )
-                            ]),
-                            html.Div(id="transactions-list", className="mt-3")
+                                ],
+                                justify="start",
+                                className="g-2",
+                            ),
+                            dbc.Row(
+                                [
+                                    dbc.Col(
+                                        dbc.Button(
+                                            "Refresh",
+                                            id="refresh-transactions-btn",
+                                            color="primary",
+                                            className="mb-3",
+                                        ),
+                                        width=12,
+                                    )
+                                ]
+                            ),
+                            html.Div(id="transactions-list", className="mt-3"),
                         ],
                         title="Transaction viewer",
-                        item_id="transaction_viewer"
+                        item_id="transaction_viewer",
                     ),
-
                     # -- NET WORTH MANAGER --
                     dbc.AccordionItem(
                         [
-                            dbc.Tabs([
-                                # Assets Tab
-                                dbc.Tab(
-                                    dbc.Card(
-                                        dbc.CardBody([
-                                            dbc.Form([
-                                                dbc.Row([
-                                                    dbc.Col(
-                                                        dbc.Input(
-                                                            id="nw-asset-name",
-                                                            placeholder="Asset name",
-                                                            type="text",
-                                                            className="mb-3",
-                                                        ),
-                                                        width=12
-                                                    )
-                                                ]),
-                                                dbc.Row([
-                                                    dbc.Col(
-                                                        dbc.Input(
-                                                            id="nw-asset-amount",
-                                                            placeholder="Amount ($)",
-                                                            type="number",
-                                                            min=0,
-                                                            step=0.01,
-                                                            className="mb-3",
-                                                        ),
-                                                        width=6
-                                                    ),
-                                                    dbc.Col(
-                                                        dbc.Select(
-                                                            id="nw-asset-type",
-                                                            options=[
-                                                                {"label": "Cash", "value": "cash"},
-                                                                {"label": "Investments", "value": "investments"},
-                                                                {"label": "Real Estate", "value": "real estate"},
-                                                                {"label": "Other Assets", "value": "other"},
-                                                            ],
-                                                            value="cash",
-                                                            className="mb-3",
-                                                        ),
-                                                        width=6
-                                                    )
-                                                ]),
-                                                dbc.Row([
-                                                    dbc.Col(
-                                                        dbc.Input(
-                                                            id="nw-asset-note",
-                                                            placeholder="Note (optional)",
-                                                            type="text",
-                                                            className="mb-3",
-                                                        ),
-                                                        width=12
-                                                    )
-                                                ]),
-                                                dbc.Row([
-                                                    dbc.Col(
-                                                        dbc.Button(
-                                                            "Add Asset", 
-                                                            id="add-asset-btn", 
-                                                            color="primary", 
-                                                            className="me-2"
-                                                        ),
-                                                        width="auto"
-                                                    ),
-                                                    dbc.Col(
-                                                        dbc.Button(
-                                                            "Clear All Assets",
-                                                            id="clear-assets-btn",
-                                                            color="secondary",
-                                                            outline=True,
-                                                            className="me-2"
-                                                        ),
-                                                        width="auto"
-                                                    )
-                                                ], justify="start", className="mb-4"),
-                                                
-                                                # Added Assets List
-                                                html.Div(id="added-assets-list", className="mb-4"),
-                                                
-                                                # Summary
-                                                dbc.Card(
-                                                    [
-                                                        html.H5("Assets Summary", className="card-title"),
-                                                        html.Div(id="assets-summary"),
-                                                    ],
-                                                    className="mb-4"
-                                                )
-                                            ])
-                                        ])
-                                    ),
-                                    label="Assets",
-                                    tab_id="assets-tab"
-                                ),
-                                
-                                # Liabilities Tab
-                                dbc.Tab(
-                                    dbc.Card(
-                                        dbc.CardBody([
-                                            dbc.Form([
-                                                dbc.Row([
-                                                    dbc.Col(
-                                                        dbc.Input(
-                                                            id="nw-liability-name",
-                                                            placeholder="Liability name",
-                                                            type="text",
-                                                            className="mb-3",
-                                                        ),
-                                                        width=12
-                                                    )
-                                                ]),
-                                                dbc.Row([
-                                                    dbc.Col(
-                                                        dbc.Input(
-                                                            id="nw-liability-amount",
-                                                            placeholder="Amount ($)",
-                                                            type="number",
-                                                            min=0,
-                                                            step=0.01,
-                                                            className="mb-3",
-                                                        ),
-                                                        width=6
-                                                    ),
-                                                    dbc.Col(
-                                                        dbc.Select(
-                                                            id="nw-liability-type",
-                                                            options=[
-                                                                {"label": "Credit Card", "value": "credit card"},
-                                                                {"label": "Loan", "value": "loan"},
-                                                                {"label": "Mortgage", "value": "mortgage"},
-                                                                {"label": "Other Liabilities", "value": "other"},
-                                                            ],
-                                                            value="credit card",
-                                                            className="mb-3",
-                                                        ),
-                                                        width=6
-                                                    )
-                                                ]),
-                                                dbc.Row([
-                                                    dbc.Col(
-                                                        dbc.Input(
-                                                            id="nw-liability-note",
-                                                            placeholder="Note (optional)",
-                                                            type="text",
-                                                            className="mb-3",
-                                                        ),
-                                                        width=12
-                                                    )
-                                                ]),
-                                                dbc.Row([
-                                                    dbc.Col(
-                                                        dbc.Button(
-                                                            "Add liability", 
-                                                            id="add-liability-btn", 
-                                                            color="primary", 
-                                                            className="me-2"
-                                                        ),
-                                                        width="auto"
-                                                    ),
-                                                    dbc.Col(
-                                                        dbc.Button(
-                                                            "Clear All liabilites",
-                                                            id="clear-liabilities-btn",
-                                                            color="secondary",
-                                                            outline=True,
-                                                            className="me-2"
-                                                        ),
-                                                        width="auto"
-                                                    )
-                                                ], justify="start", className="mb-4"),
-                                                
-                                                # Added liabilities List
-                                                html.Div(id="added-liabilities-list", className="mb-4"),
-                                                
-                                                # Summary
-                                                dbc.Card(
-                                                    [
-                                                        html.H5("Liabilities Summary", className="card-title"),
-                                                        html.Div(id="liabilities-summary"),
-                                                    ],
-                                                    className="mb-4"
-                                                )
-                                            ])
-                                        ])
-                                    ),
-                                    label="Liabilities",
-                                    tab_id="liabilities-tab"
-                                ),
-                                
-                                # Review Tab
-                                dbc.Tab(
-                                    dbc.Card(
-                                        dbc.CardBody([
-                                            html.H4("Net Worth Summary", className="mb-4"),
-                                            dbc.Row([
-                                                dbc.Col(
-                                                    dbc.Card(
-                                                        [
-                                                            html.H5("Total Assets", className="card-title"),
-                                                            html.H3(id="total-assets-display", children="$0.00", className="text-success")
-                                                        ],
-                                                        className="text-center p-3"
-                                                    ),
-                                                    width=6
-                                                ),
-                                                dbc.Col(
-                                                    dbc.Card(
-                                                        [
-                                                            html.H5("Total Liabilities", className="card-title"),
-                                                            html.H3(id="total-liabilities-display", children="$0.00", className="text-danger")
-                                                        ],
-                                                        className="text-center p-3"
-                                                    ),
-                                                    width=6
-                                                )
-                                            ], className="mb-4"),
-                                            dbc.Card(
+                            dbc.Tabs(
+                                [
+                                    # Assets Tab
+                                    dbc.Tab(
+                                        dbc.Card(
+                                            dbc.CardBody(
                                                 [
-                                                    html.H5("Net Worth", className="card-title"),
-                                                    html.H3(id="net-worth-display", children="$0.00", className="text-primary")
-                                                ],
-                                                className="text-center p-3 mb-4"
-                                            ),
-                                            dbc.Input(
-                                                id="nw-snapshot-note",
-                                                placeholder="Add a note about this snapshot (optional)",
-                                                type="text",
-                                                className="mb-3",
-                                            ),
-                                            dbc.Button(
-                                                "Save Net Worth Snapshot",
-                                                id="save-networth-btn",
-                                                color="primary",
-                                                size="lg",
-                                                className="w-100"
-                                            ),
-                                            dbc.Alert(
-                                                "Snapshot saved successfully!",
-                                                id="save-success-alert",
-                                                color="success",
-                                                dismissable=True,
-                                                is_open=False,
-                                                className="mt-3"
+                                                    dbc.Form(
+                                                        [
+                                                            dbc.Row(
+                                                                [
+                                                                    dbc.Col(
+                                                                        dbc.Input(
+                                                                            id="nw-asset-name",
+                                                                            placeholder="Asset name",
+                                                                            type="text",
+                                                                            className="mb-3",
+                                                                        ),
+                                                                        width=12,
+                                                                    )
+                                                                ]
+                                                            ),
+                                                            dbc.Row(
+                                                                [
+                                                                    dbc.Col(
+                                                                        dbc.Input(
+                                                                            id="nw-asset-amount",
+                                                                            placeholder="Amount ($)",
+                                                                            type="number",
+                                                                            min=0,
+                                                                            step=0.01,
+                                                                            className="mb-3",
+                                                                        ),
+                                                                        width=6,
+                                                                    ),
+                                                                    dbc.Col(
+                                                                        dbc.Select(
+                                                                            id="nw-asset-type",
+                                                                            options=[
+                                                                                {
+                                                                                    "label": "Cash",
+                                                                                    "value": "cash",
+                                                                                },
+                                                                                {
+                                                                                    "label": "Investments",
+                                                                                    "value": "investments",
+                                                                                },
+                                                                                {
+                                                                                    "label": "Real Estate",
+                                                                                    "value": "real estate",
+                                                                                },
+                                                                                {
+                                                                                    "label": "Other Assets",
+                                                                                    "value": "other",
+                                                                                },
+                                                                            ],
+                                                                            value="cash",
+                                                                            className="mb-3",
+                                                                        ),
+                                                                        width=6,
+                                                                    ),
+                                                                ]
+                                                            ),
+                                                            dbc.Row(
+                                                                [
+                                                                    dbc.Col(
+                                                                        dbc.Input(
+                                                                            id="nw-asset-note",
+                                                                            placeholder="Note (optional)",
+                                                                            type="text",
+                                                                            className="mb-3",
+                                                                        ),
+                                                                        width=12,
+                                                                    )
+                                                                ]
+                                                            ),
+                                                            dbc.Row(
+                                                                [
+                                                                    dbc.Col(
+                                                                        dbc.Button(
+                                                                            "Add Asset",
+                                                                            id="add-asset-btn",
+                                                                            color="primary",
+                                                                            className="me-2",
+                                                                        ),
+                                                                        width="auto",
+                                                                    ),
+                                                                    dbc.Col(
+                                                                        dbc.Button(
+                                                                            "Clear All Assets",
+                                                                            id="clear-assets-btn",
+                                                                            color="secondary",
+                                                                            outline=True,
+                                                                            className="me-2",
+                                                                        ),
+                                                                        width="auto",
+                                                                    ),
+                                                                ],
+                                                                justify="start",
+                                                                className="mb-4",
+                                                            ),
+                                                            # Added Assets List
+                                                            html.Div(
+                                                                id="added-assets-list",
+                                                                className="mb-4",
+                                                            ),
+                                                            # Summary
+                                                            dbc.Card(
+                                                                [
+                                                                    html.H5(
+                                                                        "Assets Summary",
+                                                                        className="card-title",
+                                                                    ),
+                                                                    html.Div(
+                                                                        id="assets-summary"
+                                                                    ),
+                                                                ],
+                                                                className="mb-4",
+                                                            ),
+                                                        ]
+                                                    )
+                                                ]
                                             )
-                                        ])
+                                        ),
+                                        label="Assets",
+                                        tab_id="assets-tab",
                                     ),
-                                    label="Review & Save",
-                                    tab_id="review-tab"
-                                )
-                            ]),
-                            
+                                    # Liabilities Tab
+                                    dbc.Tab(
+                                        dbc.Card(
+                                            dbc.CardBody(
+                                                [
+                                                    dbc.Form(
+                                                        [
+                                                            dbc.Row(
+                                                                [
+                                                                    dbc.Col(
+                                                                        dbc.Input(
+                                                                            id="nw-liability-name",
+                                                                            placeholder="Liability name",
+                                                                            type="text",
+                                                                            className="mb-3",
+                                                                        ),
+                                                                        width=12,
+                                                                    )
+                                                                ]
+                                                            ),
+                                                            dbc.Row(
+                                                                [
+                                                                    dbc.Col(
+                                                                        dbc.Input(
+                                                                            id="nw-liability-amount",
+                                                                            placeholder="Amount ($)",
+                                                                            type="number",
+                                                                            min=0,
+                                                                            step=0.01,
+                                                                            className="mb-3",
+                                                                        ),
+                                                                        width=6,
+                                                                    ),
+                                                                    dbc.Col(
+                                                                        dbc.Select(
+                                                                            id="nw-liability-type",
+                                                                            options=[
+                                                                                {
+                                                                                    "label": "Credit Card",
+                                                                                    "value": "credit card",
+                                                                                },
+                                                                                {
+                                                                                    "label": "Loan",
+                                                                                    "value": "loan",
+                                                                                },
+                                                                                {
+                                                                                    "label": "Mortgage",
+                                                                                    "value": "mortgage",
+                                                                                },
+                                                                                {
+                                                                                    "label": "Other Liabilities",
+                                                                                    "value": "other",
+                                                                                },
+                                                                            ],
+                                                                            value="credit card",
+                                                                            className="mb-3",
+                                                                        ),
+                                                                        width=6,
+                                                                    ),
+                                                                ]
+                                                            ),
+                                                            dbc.Row(
+                                                                [
+                                                                    dbc.Col(
+                                                                        dbc.Input(
+                                                                            id="nw-liability-note",
+                                                                            placeholder="Note (optional)",
+                                                                            type="text",
+                                                                            className="mb-3",
+                                                                        ),
+                                                                        width=12,
+                                                                    )
+                                                                ]
+                                                            ),
+                                                            dbc.Row(
+                                                                [
+                                                                    dbc.Col(
+                                                                        dbc.Button(
+                                                                            "Add liability",
+                                                                            id="add-liability-btn",
+                                                                            color="primary",
+                                                                            className="me-2",
+                                                                        ),
+                                                                        width="auto",
+                                                                    ),
+                                                                    dbc.Col(
+                                                                        dbc.Button(
+                                                                            "Clear All liabilites",
+                                                                            id="clear-liabilities-btn",
+                                                                            color="secondary",
+                                                                            outline=True,
+                                                                            className="me-2",
+                                                                        ),
+                                                                        width="auto",
+                                                                    ),
+                                                                ],
+                                                                justify="start",
+                                                                className="mb-4",
+                                                            ),
+                                                            # Added liabilities List
+                                                            html.Div(
+                                                                id="added-liabilities-list",
+                                                                className="mb-4",
+                                                            ),
+                                                            # Summary
+                                                            dbc.Card(
+                                                                [
+                                                                    html.H5(
+                                                                        "Liabilities Summary",
+                                                                        className="card-title",
+                                                                    ),
+                                                                    html.Div(
+                                                                        id="liabilities-summary"
+                                                                    ),
+                                                                ],
+                                                                className="mb-4",
+                                                            ),
+                                                        ]
+                                                    )
+                                                ]
+                                            )
+                                        ),
+                                        label="Liabilities",
+                                        tab_id="liabilities-tab",
+                                    ),
+                                    # Review Tab
+                                    dbc.Tab(
+                                        dbc.Card(
+                                            dbc.CardBody(
+                                                [
+                                                    html.H4(
+                                                        "Net Worth Summary",
+                                                        className="mb-4",
+                                                    ),
+                                                    dbc.Row(
+                                                        [
+                                                            dbc.Col(
+                                                                dbc.Card(
+                                                                    [
+                                                                        html.H5(
+                                                                            "Total Assets",
+                                                                            className="card-title",
+                                                                        ),
+                                                                        html.H3(
+                                                                            id="total-assets-display",
+                                                                            children="$0.00",
+                                                                            className="text-success",
+                                                                        ),
+                                                                    ],
+                                                                    className="text-center p-3",
+                                                                ),
+                                                                width=6,
+                                                            ),
+                                                            dbc.Col(
+                                                                dbc.Card(
+                                                                    [
+                                                                        html.H5(
+                                                                            "Total Liabilities",
+                                                                            className="card-title",
+                                                                        ),
+                                                                        html.H3(
+                                                                            id="total-liabilities-display",
+                                                                            children="$0.00",
+                                                                            className="text-danger",
+                                                                        ),
+                                                                    ],
+                                                                    className="text-center p-3",
+                                                                ),
+                                                                width=6,
+                                                            ),
+                                                        ],
+                                                        className="mb-4",
+                                                    ),
+                                                    dbc.Card(
+                                                        [
+                                                            html.H5(
+                                                                "Net Worth",
+                                                                className="card-title",
+                                                            ),
+                                                            html.H3(
+                                                                id="net-worth-display",
+                                                                children="$0.00",
+                                                                className="text-primary",
+                                                            ),
+                                                        ],
+                                                        className="text-center p-3 mb-4",
+                                                    ),
+                                                    dbc.Input(
+                                                        id="nw-snapshot-note",
+                                                        placeholder="Add a note about this snapshot (optional)",
+                                                        type="text",
+                                                        className="mb-3",
+                                                    ),
+                                                    dbc.Button(
+                                                        "Save Net Worth Snapshot",
+                                                        id="save-networth-btn",
+                                                        color="primary",
+                                                        size="lg",
+                                                        className="w-100",
+                                                    ),
+                                                    dbc.Alert(
+                                                        "Snapshot saved successfully!",
+                                                        id="save-success-alert",
+                                                        color="success",
+                                                        dismissable=True,
+                                                        is_open=False,
+                                                        className="mt-3",
+                                                    ),
+                                                ]
+                                            )
+                                        ),
+                                        label="Review & Save",
+                                        tab_id="review-tab",
+                                    ),
+                                ]
+                            ),
                             # Hidden storage for the data
-                            dcc.Store(id='stored-assets', data=[]),
-                            dcc.Store(id='stored-liabilities', data=[]),
-                            dcc.Store(id='net-worth-data')
+                            dcc.Store(id="stored-assets", data=[]),
+                            dcc.Store(id="stored-liabilities", data=[]),
+                            dcc.Store(id="net-worth-data"),
                         ],
                         title="Net Worth Manager",
-                        item_id="nw-manager"
+                        item_id="nw-manager",
                     ),
-
-                    # -- IMPORT CSV FILE -- 
+                    # -- IMPORT CSV FILE --
                     # -- CSV IMPORT --
                     dbc.AccordionItem(
                         [
-                            dbc.Form([
-                                dcc.Upload(
-                                    id='upload-transactions',
-                                    children=html.Div([
-                                        'Drag and Drop or ',
-                                        html.A('Select CSV File')
-                                    ]),
-                                    style={
-                                        'width': '100%',
-                                        'height': '60px',
-                                        'lineHeight': '60px',
-                                        'borderWidth': '1px',
-                                        'borderStyle': 'dashed',
-                                        'borderRadius': '5px',
-                                        'textAlign': 'center',
-                                        'marginBottom': '20px'
-                                    },
-                                    multiple=False
-                                ),
-                                dbc.Row([
-                                    dbc.Col(
-                                        dbc.Button(
-                                            "Import Transactions",
-                                            id="import-csv-btn",
-                                            color="primary",
-                                            className="w-100"
+                            dbc.Form(
+                                [
+                                    dcc.Upload(
+                                        id="upload-transactions",
+                                        children=html.Div(
+                                            [
+                                                "Drag and Drop or ",
+                                                html.A("Select CSV File"),
+                                            ]
                                         ),
-                                        width=12
-                                    )
-                                ]),
-                                html.Div(id='csv-import-output', className="mt-3"),
-                                dcc.Interval(
-                                    id="csv-reset-interval",
-                                    interval=2000,
-                                    n_intervals=0,
-                                    disabled=True
-                                )
-                            ])
+                                        style={
+                                            "width": "100%",
+                                            "height": "60px",
+                                            "lineHeight": "60px",
+                                            "borderWidth": "1px",
+                                            "borderStyle": "dashed",
+                                            "borderRadius": "5px",
+                                            "textAlign": "center",
+                                            "marginBottom": "20px",
+                                        },
+                                        multiple=False,
+                                    ),
+                                    dbc.Row(
+                                        [
+                                            dbc.Col(
+                                                dbc.Button(
+                                                    "Import Transactions",
+                                                    id="import-csv-btn",
+                                                    color="primary",
+                                                    className="w-100",
+                                                ),
+                                                width=12,
+                                            )
+                                        ]
+                                    ),
+                                    html.Div(id="csv-import-output", className="mt-3"),
+                                    dcc.Interval(
+                                        id="csv-reset-interval",
+                                        interval=2000,
+                                        n_intervals=0,
+                                        disabled=True,
+                                    ),
+                                ]
+                            )
                         ],
-                        title="Import CSV"
+                        title="Import CSV",
                     ),
-
                     # # -- CODE INJECTOR --
                     # dbc.AccordionItem(
                     #     [
@@ -798,98 +1071,152 @@ def data_page_layout():
                     # )
                 ],
                 active_item="transaction_manager",
-                flush=True
+                flush=True,
             ),
-
-            dcc.Store(id="transaction-added", data=False), # Storage for custom event sent to script when transaction added
-            dcc.Store(id="category-added", data=False), # Storage for custom event sent to script when category added
+            dcc.Store(
+                id="transaction-added", data=False
+            ),  # Storage for custom event sent to script when transaction added
+            dcc.Store(
+                id="category-added", data=False
+            ),  # Storage for custom event sent to script when category added
             dcc.Store(id="income-added", data=False),
-            dcc.Store(id='checkbox-store'),
-            
-            html.Div(id="dummy-trans", style={"display": "none"}), # Dummy since dash always requires outputs for callbacks
-            html.Div(id="dummy-cat", style={"display": "none"}), # Dummy since dash always requires outputs for callbacks
+            dcc.Store(id="checkbox-store"),
+            html.Div(
+                id="dummy-trans", style={"display": "none"}
+            ),  # Dummy since dash always requires outputs for callbacks
+            html.Div(
+                id="dummy-cat", style={"display": "none"}
+            ),  # Dummy since dash always requires outputs for callbacks
             html.Div(id="dummy-inc", style={"display": "none"}),
-            
             # Transaction viewer modal
             dbc.Modal(
                 [
                     dbc.ModalHeader("Edit Transaction"),
-                    dbc.ModalBody([
-                        dcc.Input(id="edit-trans-id", type="hidden"),
-                        dbc.Input(id="edit-trans-merchant", placeholder="Merchant", className="mb-2"),
-                        dbc.Input(id="edit-trans-amount", type="number", placeholder="Amount", className="mb-2"),
-                        dcc.DatePickerSingle(
-                            id="edit-trans-date",
-                            display_format='MMM Do, YY',
-                            className="mb-2"
-                        ),
-                        dbc.Input(id="edit-trans-note", placeholder="Note", className="mb-2"),
-                        dbc.Checkbox(
-                                    id="edit-trans-recurring",
-                                    label="Recurring",
-                                    value=False,
-                                    className="mb-3"
-                                ),
-                        dbc.Select(
-                            id="edit-trans-category",
-                            options=[],
-                            className="mb-2"
-                        )
-                    ]),
-                    dbc.ModalFooter([
-                        dbc.Button("Save", id="edit-trans-submit-btn", color="primary"),
-                        dbc.Button("Cancel", id="edit-trans-cancel-btn", color="secondary")
-                    ])
+                    dbc.ModalBody(
+                        [
+                            dcc.Input(id="edit-trans-id", type="hidden"),
+                            dbc.Input(
+                                id="edit-trans-merchant",
+                                placeholder="Merchant",
+                                className="mb-2",
+                            ),
+                            dbc.Input(
+                                id="edit-trans-amount",
+                                type="number",
+                                placeholder="Amount",
+                                className="mb-2",
+                            ),
+                            dcc.DatePickerSingle(
+                                id="edit-trans-date",
+                                display_format="MMM Do, YY",
+                                className="mb-2",
+                            ),
+                            dbc.Input(
+                                id="edit-trans-note",
+                                placeholder="Note",
+                                className="mb-2",
+                            ),
+                            dbc.Checkbox(
+                                id="edit-trans-recurring",
+                                label="Recurring",
+                                value=False,
+                                className="mb-3",
+                            ),
+                            dbc.Select(
+                                id="edit-trans-category", options=[], className="mb-2"
+                            ),
+                        ]
+                    ),
+                    dbc.ModalFooter(
+                        [
+                            dbc.Button(
+                                "Save", id="edit-trans-submit-btn", color="primary"
+                            ),
+                            dbc.Button(
+                                "Cancel", id="edit-trans-cancel-btn", color="secondary"
+                            ),
+                        ]
+                    ),
                 ],
                 id="edit-transaction-modal",
-                is_open=False
+                is_open=False,
             ),
-            
+
             # Category viewer modal
             dbc.Modal(
                 [
                     dbc.ModalHeader("Edit Category"),
-                    dbc.ModalBody([
-                        dcc.Input(id="edit-cat-id", type="hidden"),
-                        dbc.Input(id="edit-cat-name", placeholder="Name", className="mb-2"),
-                        dbc.Input(id="edit-cat-budget", type="number", placeholder="Budget", className="mb-2"),
-                    ]),
-                    dbc.ModalFooter([
-                        dbc.Button("Save", id="edit-cat-submit-btn", color="primary"),
-                        dbc.Button("Cancel", id="edit-cat-cancel-btn", color="secondary")
-                    ])
+                    dbc.ModalBody(
+                        [
+                            dcc.Input(id="edit-cat-id", type="hidden"),
+                            dbc.Input(
+                                id="edit-cat-name", placeholder="Name", className="mb-2"
+                            ),
+                            dbc.Input(
+                                id="edit-cat-budget",
+                                type="number",
+                                placeholder="Budget",
+                                className="mb-2",
+                            ),
+                        ]
+                    ),
+                    dbc.ModalFooter(
+                        [
+                            dbc.Button(
+                                "Save", id="edit-cat-submit-btn", color="primary"
+                            ),
+                            dbc.Button(
+                                "Cancel", id="edit-cat-cancel-btn", color="secondary"
+                            ),
+                        ]
+                    ),
                 ],
                 id="edit-category-modal",
-                is_open=False
+                is_open=False,
             ),
-            
             # Income viewer modal
             dbc.Modal(
                 [
                     dbc.ModalHeader("Edit Income"),
-                    dbc.ModalBody([
-                        dcc.Input(id="edit-income-id", type="hidden"),
-                        dbc.Input(id="edit-income-source", placeholder="Income Source", className="mb-2"),
-                        dbc.Input(id="edit-income-amount", type="number", placeholder="Amount", className="mb-2"),
-                        dcc.DatePickerSingle(
-                            id="edit-income-date",
-                            display_format='MMM Do, YY',
-                            className="mb-2"
-                        ),
-                    ]),
-                    dbc.ModalFooter([
-                        dbc.Button("Save", id="edit-income-submit-btn", color="primary"),
-                        dbc.Button("Cancel", id="edit-income-cancel-btn", color="secondary")
-                    ])
+                    dbc.ModalBody(
+                        [
+                            dcc.Input(id="edit-income-id", type="hidden"),
+                            dbc.Input(
+                                id="edit-income-source",
+                                placeholder="Income Source",
+                                className="mb-2",
+                            ),
+                            dbc.Input(
+                                id="edit-income-amount",
+                                type="number",
+                                placeholder="Amount",
+                                className="mb-2",
+                            ),
+                            dcc.DatePickerSingle(
+                                id="edit-income-date",
+                                display_format="MMM Do, YY",
+                                className="mb-2",
+                            ),
+                        ]
+                    ),
+                    dbc.ModalFooter(
+                        [
+                            dbc.Button(
+                                "Save", id="edit-income-submit-btn", color="primary"
+                            ),
+                            dbc.Button(
+                                "Cancel", id="edit-income-cancel-btn", color="secondary"
+                            ),
+                        ]
+                    ),
                 ],
                 id="edit-income-modal",
-                is_open=False
-            )
-
+                is_open=False,
+            ),
         ],
         id="main-container-data-page",
         fluid=True,
-        className="p-4"
+        className="p-4",
     )
 
 # --- BACKEND ---
@@ -915,37 +1242,40 @@ def data_page_callbacks(app):
         # Return the same options for both dropdowns
         return category_options, category_options
 
-    # --- ADD TRANSACTION ---
+    # --- TRANSACTION ADDING CALLBACKS ---
     @app.callback(
-    [
-        Output("add-transaction-btn", "children", allow_duplicate=True),
-        Output("add-transaction-btn", "style"),
-        
-        Output("tm-merchant", "value"),
-        Output("tm-amount", "value"),
-        Output("tm-note", "value"),
-        Output("tm-date", "date"),
-        Output("tm-recurring", "value"),
-        Output("transaction-added", "data"),
-        Output("button-reset-interval", "disabled"),  # Interval reset output
-    ],
-    [
-        Input("add-transaction-btn", "n_clicks"),
-        Input("button-reset-interval", "n_intervals"),
-    ],
-    [
-        State("tm-category", "value"),
-        State("tm-merchant", "value"),
-        State("tm-amount", "value"),
-        State("tm-note", "value"),
-        State("tm-date", "date"),
-        State("tm-recurring", "value"),
-        State("add-transaction-btn", "children"),
-    ],
-    prevent_initial_call=True
+        [
+            Output("add-transaction-btn", "children", allow_duplicate=True),
+            Output("add-transaction-btn", "style"),
+            Output("tm-merchant", "value"),
+            Output("tm-amount", "value"),
+            Output("tm-note", "value"),
+            Output("tm-date", "date"),
+            Output("tm-recurring", "value"),
+            Output("selected-tags-store", "data"),
+            Output("transaction-added", "data"),
+            Output("button-reset-interval", "disabled"),  # Interval reset output
+        ],
+        [
+            Input("add-transaction-btn", "n_clicks"),
+            Input("button-reset-interval", "n_intervals"),
+        ],
+        [
+            State("tm-category", "value"),
+            State("tm-merchant", "value"),
+            State("tm-amount", "value"),
+            State("tm-note", "value"),
+            State("tm-date", "date"),
+            State("tm-recurring", "value"),
+
+            State("selected-tags-store", "data"),
+
+            State("add-transaction-btn", "children"),
+        ],
+        prevent_initial_call=True,
     )
     @authenticate_callback
-    def handle_transactions(n_clicks, n_intervals, category, merchant, amount, note, date, recurring, current_text):
+    def handle_transactions(n_clicks, n_intervals, category, merchant, amount, note, date, recurring, tags, current_text):
         ctx = callback_context
         
         if not ctx.triggered:
@@ -966,31 +1296,43 @@ def data_page_callbacks(app):
                             'color': 'white'  # White text
                         },
                         no_update, no_update, no_update,
-                        no_update, no_update, no_update, no_update
+                        no_update, no_update, no_update, no_update, no_update
                     )
                     
                 if not merchant:
                     return (
-                        "Invalid merchant", 
+                        "Invalid merchant",
                         {
-                            'backgroundColor': '#dc3545',  # Red background
-                            'borderColor': '#dc3545',
-                            'color': 'white'  # White text
+                            "backgroundColor": "#dc3545",  # Red background
+                            "borderColor": "#dc3545",
+                            "color": "white",  # White text
                         },
-                        no_update, no_update, no_update,
-                        no_update, no_update, no_update, no_update
+                        no_update,
+                        no_update,
+                        no_update,
+                        no_update,
+                        no_update,
+                        no_update,
+                        no_update,
+                        no_update,
                     )
                     
                 if not isinstance(amount, (int, float)) or amount < 0:
                     return (
                         "Invalid amount",
                         {
-                            'backgroundColor': '#dc3545',  # Red background
-                            'borderColor': '#dc3545',
-                            'color': 'white'  # White text
+                            "backgroundColor": "#dc3545",  # Red background
+                            "borderColor": "#dc3545",
+                            "color": "white",  # White text
                         },
-                        no_update, no_update, no_update,
-                        no_update, no_update, no_update, no_update
+                        no_update,
+                        no_update,
+                        no_update,
+                        no_update,
+                        no_update,
+                        no_update,
+                        no_update,
+                        no_update,
                     )
                 
                 # If all passed then add transaction
@@ -1026,15 +1368,28 @@ def data_page_callbacks(app):
                                 current_user.id,
                             ),
                         )
+
+                # If tags provided, insert into tags table
+                if tags:
+                    
+                    for tag in tags:
+                        db.add_tag_to_transaction(trans_id, tag["name"], tag["color"], current_user.id)
                 
                 return (
-                    "Transaction Added!",  
+                    "Transaction Added!",
                     {
-                        'backgroundColor': '#28a745',  # Green background
-                        'borderColor': '#28a745',
-                        'color': 'white'  # White text
-                    }, # Updated button text
-                    "", None, "", date, False, True, False  # Enable the interval
+                        "backgroundColor": "#28a745",  # Green background
+                        "borderColor": "#28a745",
+                        "color": "white",  # White text
+                    },  # Updated button text
+                    "",
+                    None,
+                    "",
+                    date,
+                    False,
+                    [],  # clear tags storage
+                    True,  
+                    False,  # Enable the interval
                 )
                 
             except Exception as e:
@@ -1045,7 +1400,7 @@ def data_page_callbacks(app):
                             'borderColor': '#dc3545',
                             'color': 'white'  # White text
                     },
-                    merchant, amount, date, note, recurring, False, True  # Keep interval disabled
+                    merchant, amount, date, note, recurring, tags, False, True  # Keep interval disabled
                 )
         
         elif trigger_id == "button-reset-interval":
@@ -1059,11 +1414,11 @@ def data_page_callbacks(app):
                     },
                     # Reset text
                     no_update, no_update, no_update,
-                    no_update, no_update, no_update, True  # Disable the interval again
+                    no_update, no_update, no_update, no_update, True  # Disable the interval again
                 )
         
         raise PreventUpdate
-    
+
     # # Extra callback to sync frontend java update with backend for checkmark
     # @app.callback(
     #     Output("checkbox-store", "data"),
@@ -1072,8 +1427,201 @@ def data_page_callbacks(app):
     # )
     # def store_checkbox_value(value, _):
     #     return {"value": value}
+
+    # --- TAG MANAGEMENT ON ADD CALLBACKS ---
     
-    # CHANGE DAT TRANSACTION
+    # -- Tag suggestions dynamic update --
+    @app.callback(
+        Output("tag-suggestions", "children"),
+        Output("tag-suggestions-collapse", "is_open"),
+        Input("tm-tag-input", "value"),
+        prevent_initial_call=True,
+    )
+    @authenticate_callback
+    def update_tag_suggestions(search_text):
+        if not search_text:
+            return [], False
+
+        # Perform tag search every input tick
+        with db._get_cursor() as cursor:
+            
+            cursor.execute(
+                """
+                SELECT DISTINCT tg.tag_name, tg.tag_color
+                FROM tags tg
+                JOIN transactions t ON tg.transaction_id = t.id
+                WHERE t.user_id = ? AND LOWER(tg.tag_name) LIKE LOWER(?)
+                GROUP BY tg.tag_name
+                ORDER BY COUNT(*) DESC
+                LIMIT 5
+            """,
+                (current_user.id, f"%{search_text}%"),
+            )
+
+            existing_tags = cursor.fetchall()
+
+
+        if existing_tags:
+            suggestions = []
+            for tag_name, tag_color in existing_tags:
+                suggestions.append(
+                    dbc.Button(
+                        [
+                            dbc.Badge(
+                                tag_name,
+                                color=tag_color,
+                            )
+                        ],
+                        id={
+                            "type": "tag-suggestion",
+                            "tag": tag_name,
+                            "color": tag_color,
+                        },
+                        color="link",
+                        className="text-start w-100 p-1",
+                        size="sm",
+                    )
+                )
+            return suggestions, True
+
+        # If no relevant tag found, offer to add new tag
+        return [
+            html.Div(
+                f'Press Enter to add "{search_text}" as new tag', className="text-muted p-2"
+            )
+        ], True
+
+    # -- Adding tag from suggestions --
+    @app.callback(
+        Output("selected-tags-store", "data", allow_duplicate=True),
+        Output("tm-tag-input", "value", allow_duplicate=True),
+        Output("tag-suggestions-collapse", "is_open", allow_duplicate=True),
+        Input({"type": "tag-suggestion", "tag": ALL, "color": ALL}, "n_clicks"),
+        State("selected-tags-store", "data"),
+        prevent_initial_call=True,
+    )
+    def select_tag_from_suggestion(n_clicks_list, current_tags):
+        if not any(n_clicks_list):
+            raise PreventUpdate
+
+        ctx = callback_context
+        if not ctx.triggered:
+            raise PreventUpdate
+
+        # Tag metadata from clicked
+        clicked_id = eval(ctx.triggered[0]["prop_id"].split(".")[0])
+        tag_name = clicked_id["tag"]
+        tag_color = clicked_id["color"]
+
+        if current_tags is None:
+            current_tags = []
+
+        # Check if tag already exists
+        if not any(tag["name"] == tag_name for tag in current_tags):
+            current_tags.append({"name": tag_name, "color": tag_color})
+
+        return current_tags, "", False
+
+    # -- Add new tag on Enter to frontend store --
+    @app.callback(
+        Output("selected-tags-store", "data", allow_duplicate=True),
+        Output("tm-tag-input", "value", allow_duplicate=True),
+        Input("tm-tag-input", "n_submit"),
+        State("tm-tag-input", "value"),
+        State("selected-tags-store", "data"),
+        prevent_initial_call=True,
+    )
+    def add_tag_on_enter(n_submit, tag_input, current_tags):
+        if not tag_input or not tag_input.strip():
+            raise PreventUpdate
+
+        if current_tags is None:
+            current_tags = []
+
+        tag_name = tag_input.strip()
+
+        # Check if tag already exists
+        if not any(tag["name"] == tag_name for tag in current_tags):
+            
+            # Random color
+            import random
+
+            colors = [
+                "#FF6B6B",
+                "#4ECDC4",
+                "#45B7D1",
+                "#96CEB4",
+                "#FFEAA7",
+                "#DDA0DD",
+                "#98D8C8",
+                "#F7DC6F",
+            ]
+            tag_color = random.choice(colors)
+            current_tags.append({"name": tag_name, "color": tag_color})
+
+        return current_tags, ""
+    
+    # -- Display selected tags as badges into container --
+    @app.callback(
+        Output("selected-tags-display", "children"),
+        Input("selected-tags-store", "data"),
+        prevent_initial_call=True,
+    )
+    def display_selected_tags(tags):
+        if not tags:
+            return []
+
+        tag_badges = []
+        for i, tag in enumerate(tags):
+            
+            tag_badges.append(
+                dbc.Badge(
+                    [
+                        tag["name"],
+                        dbc.Button(
+                            "×",
+                            id={"type": "remove-tag", "index": i},
+                            color="link",
+                            size="sm",
+                            className="ms-1 p-0 text-white",
+                            style={"border": "none", "background": "transparent"},
+                        ),
+                    ],
+                    color=tag["color"],
+                    className="me-1",
+                    style={"cursor": "default"},
+                )
+            )
+
+        return tag_badges
+
+    # -- Remove tags from storage container --
+    @app.callback(
+        Output("selected-tags-store", "data", allow_duplicate=True),
+        Input({"type": "remove-tag", "index": ALL}, "n_clicks"),
+        State("selected-tags-store", "data"),
+        prevent_initial_call=True
+    )
+    def remove_tag(n_clicks_list, current_tags):
+        if not any(n_clicks_list):
+            raise PreventUpdate
+        
+        ctx = callback_context
+        if not ctx.triggered:
+            raise PreventUpdate
+        
+        # Extract the index of the tag to remove
+        clicked_id = eval(ctx.triggered[0]['prop_id'].split('.')[0])
+        index_to_remove = clicked_id['index']
+        
+        if current_tags and 0 <= index_to_remove < len(current_tags):
+            current_tags.pop(index_to_remove)
+        
+        return current_tags
+
+    # --------------------------------------------------------------------------------------
+
+    # CHANGE DATE TRANSACTION
     @app.callback(
         Output("tm-date", "date", allow_duplicate=True),
         Input("tm-date-increment", "n_clicks"),
@@ -1403,7 +1951,8 @@ def data_page_callbacks(app):
             num_trans_limit = 40 # default
         
         # Fetch recent transactions
-        transactions = db.fetch_recent_transactions(search_term, category_filter, start_date, end_date, recurring_filter, num_trans_limit, sort_order, current_user.id)
+        tags_filter = None  # No tag filtering for now
+        transactions = db.fetch_recent_transactions(search_term, category_filter, start_date, end_date, recurring_filter, tags_filter, num_trans_limit, sort_order, current_user.id)
         
         if not transactions:
             return dbc.Alert("No transactions found", color="info")
